@@ -1,4 +1,5 @@
 from cryptography.fernet import Fernet
+import os
 
 
 def write_key():
@@ -8,9 +9,13 @@ def write_key():
 
 
 def load_key():
-    with open('key.key', 'rb') as key_file:
-        key = key_file.read()
-    return key
+    if os.path.exists('key.key'):
+        with open('key.key', 'rb') as key_file:
+            key = key_file.read()
+        return key
+    else:
+        write_key()
+        return load_key()
 
 
 master_pwd = input('What is the master password? ')
@@ -19,11 +24,14 @@ fer = Fernet(key)
 
 
 def view():
-    with open('password.txt', 'r') as f:
-        for line in f.readlines():
-            data = line.rstrip()
-            user, passe = data.split('|')
-            print('user:', user, '| Password:', str(fer.decrypt(passe.encode())))
+    if os.path.exists('password.txt'):
+        with open('password.txt', 'r') as f:
+            for line in f.readlines():
+                data = line.rstrip()
+                user, passe = data.split('|')
+                print('user:', user, '| Password:', str(fer.decrypt(passe.encode())))
+    else:
+        print("No passwords found. Add some passwords using 'add' option.")
 
 
 def add():
